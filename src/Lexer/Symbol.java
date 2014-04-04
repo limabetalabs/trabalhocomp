@@ -61,5 +61,6 @@ public class Symbol {
             STRING = 57,
             NOTIN = 58,
             ISNOT = 59,
+            DOT = 60,//ponto utilizado nas classes
             LastSymbol = 99;
 }

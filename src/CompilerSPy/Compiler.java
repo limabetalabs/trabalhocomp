@@ -678,6 +678,7 @@ public class Compiler {
     }
 
     //atom: '[' [listmaker] ']' | NAME | NUMBER | STRING+
+    //ajuste linguagem => atom: '[' [listmaker] ']' | NAME | NUMBER | STRING+ | func_call | NAME '.' func_call | NAME '.' NAME | '(' test ')'
     public Atom atom() {
         ListMaker listmaker = null;
         String str = null;
@@ -739,22 +740,59 @@ public class Compiler {
         return listmaker;
     }
 
-    //targetlist = target ("," target)* 
     //target = NAME
+    //alteração linguagem => target = NAME | 'self' '.' NAME | NAME '.' func_call | NAME '.' NAME
     private Target target() {
-        String tipo;
+        String tipo, nome, nome2;
+        nome = null;
         if (lexer.token != Symbol.ID) {
             error.show("NAME experado!", true);
         } else {
-            if (symbolTable.getInGlobal(lexer.getStringValue()) != null) {
-                error.show("NAME já utilizado!", true);
+            if (lexer.token == Symbol.ID) {
+                nome = lexer.getStringValue();
+
+                lexer.nextToken();
+
+                if (lexer.token == Symbol.DOT) {
+                    lexer.nextToken();
+
+                    if (lexer.token != Symbol.ID) {
+                        error.show("NAME esperado!");
+                    }
+
+                    nome2 = lexer.getStringValue();
+
+                    lexer.nextToken();
+
+                    if (lexer.token == Symbol.LEFTPAR) {
+                        //Função
+                    } else {
+                        if (this.symbolTable.getInGlobal(nome) == null) {
+                            error.show("Atributo não foi encontrado");
+                        }
+
+                        String cl = ((Target) this.symbolTable.getInGlobal(nome)).getType();
+
+                        if (this.symbolTable.getInGlobal(cl + "." + nome2) == null) {
+                            error.show("Atributo não foi encontrado");
+                        }
+
+                        id = new Target(id1, id2);
+                        id.setType(((MaxiExpr) this.symbolTable.get(cl + "." + id2)).getType());
+                    }
+                }
             } else {
-                symbolTable.putInGlobal(lexer.getStringValue(), "undefined");
+                error.show("NAME esperado!");
             }
+//            if (symbolTable.getInGlobal(lexer.getStringValue()) != null) {
+//                error.show("NAME já utilizado!", true);
+//            } else {
+//                symbolTable.putInGlobal(lexer.getStringValue(), "undefined");
+//            }
         }
-        tipo = symbolTable.getInGlobal(lexer.getStringValue()).toString();
-        Target id = new Target(lexer.getStringValue(), tipo);
-        lexer.nextToken();
+//        tipo = symbolTable.getInGlobal(lexer.getStringValue()).toString();
+//        Target id = new Target(nome, tipo);
+//        lexer.nextToken();
         return id;
     }
 }
