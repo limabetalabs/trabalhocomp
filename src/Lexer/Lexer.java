@@ -62,13 +62,21 @@ public class Lexer {
 
     private void isNumber() {
         String number = new String();
-        while (Character.isDigit(input[tokenPos])) {
+        boolean ponto = false;
+        while (Character.isDigit(input[tokenPos]) || input[tokenPos] == '.') {
+            if (input[tokenPos] == '.' && !ponto) {
+                ponto = true;
+            } else if (input[tokenPos] == '.' && ponto) {
+                error.show("Numero invalido!");
+            }
             number += String.valueOf(input[tokenPos]);
+//            System.out.println(number);
             tokenPos++;
         }
         token = Symbol.NUM;
         try {
-            numberValue = Integer.valueOf(number).intValue();
+            float i = Float.valueOf(number);
+            numberValue = (int) i;
         } catch (NumberFormatException e) {
             error.show("Number out of limits");
         }

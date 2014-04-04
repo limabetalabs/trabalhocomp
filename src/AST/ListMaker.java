@@ -21,9 +21,11 @@ public class ListMaker implements ClassGenC{
     public int getSize() {
         return this.test.size();
     }
+    
     public Test getElement(int i) {
         return test.get(i);
     }
+    
     @Override
     public void genC(PW pw) {
         test.get(0).genC(pw);
