@@ -61,6 +61,8 @@ import java.io.*;
 public class Compiler {
 
     private SymbolTable symbolTable;
+    private SymbolTable symbolTableClasses;
+    private SymbolTable symbolTableFuncoes;
     private Lexer lexer;
     private CompilerError error;
 
@@ -69,6 +71,8 @@ public class Compiler {
     public Program compile(char[] input, PrintWriter outError) {
 
         symbolTable = new SymbolTable();
+        symbolTableClasses = new SymbolTable();
+        symbolTableFuncoes = new SymbolTable();
         error = new CompilerError(lexer, new PrintWriter(outError));
         lexer = new Lexer(input, error);
         error.setLexer(lexer);
@@ -134,7 +138,7 @@ public class Compiler {
         if (lexer.token == Symbol.NEWLINE) {
             lexer.nextToken();
         } else {
-            error.show("Nova linha esperada!", true);
+            error.show("Nova linha esperada!(obs ultima linha do arquivo deve ser em branco).", true);
         }
         SimpleStmt smallstmt = new SimpleStmt(small_stmt_list);
         return smallstmt;
@@ -284,10 +288,19 @@ public class Compiler {
     }
 
     //while_stmt: 'while' test ':' suite ['else' ':' suite]
+    //CORREÇÃO na linguagem: while_stmt: 'while' '(' test ')' ':' suite ['else' ':' suite]
     private WhileStmt while_stmt() {
         lexer.nextToken();
         Suite elsePart = null;
+        if (lexer.token != Symbol.LEFTPAR) {
+            error.show("Esperado: '('", true);
+        }
+        lexer.nextToken();
         Test condition = test();
+        if (lexer.token != Symbol.RIGHTPAR) {
+            error.show("Esperado: ')'", true);
+        }
+        lexer.nextToken();
         if (lexer.token != Symbol.COLON) {
             error.show("Esperado: ':'", true);
         }
@@ -376,7 +389,7 @@ public class Compiler {
         if (lexer.token != Symbol.ID) {
             error.show("Esperado: Identificador", true);
         }
-        int name = lexer.token;
+        String name = lexer.getStringValue();
         lexer.nextToken();
         Parameters parameters = parameters();
         if (lexer.token != Symbol.COLON) {
@@ -384,7 +397,13 @@ public class Compiler {
         }
         lexer.nextToken();
         Suite suite = suite();
-        return new FuncDec(name, parameters, suite);
+        FuncDec fdec = new FuncDec(name, parameters, suite);
+        if (symbolTableFuncoes.getInGlobal(name) != null) {
+            error.show("NAME já utilizado!", true);
+        } else {
+            symbolTableFuncoes.putInGlobal(name, "void");
+        }
+        return fdec;
     }
     // suite: simple_stmt | NEWLINE INDENT stmt+ DEDENT
 

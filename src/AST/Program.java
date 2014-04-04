@@ -35,7 +35,7 @@ public class Program {
        
         pw.print("\n\n");
         pw.println("int main(){");
-
+        
 
         for (Stmt s : listStmt) {
             s.genC(pw);
