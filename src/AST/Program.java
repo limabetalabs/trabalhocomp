@@ -19,6 +19,13 @@ public class Program {
 
         // Get a set of all the entries (key - value pairs) contained in the Hashtable
         Hashtable hs = (Hashtable) variaveis.getGlobal();
+//        Enumeration keys = hs.keys();
+//        while (keys.hasMoreElements()) {
+//            Object key = keys.nextElement();
+//            Object value = hs.get(key);
+//            System.out.println(value);
+//        }
+
         Set entrySet = hs.entrySet();
 
         // Obtain an Iterator for the entries Set
@@ -32,10 +39,8 @@ public class Program {
 //       for (String s : variaveis2){
 //           pw.println("int _" + s + ";");
 //       }
-       
         pw.print("\n\n");
         pw.println("int main(){");
-        
 
         for (Stmt s : listStmt) {
             s.genC(pw);
@@ -44,7 +49,6 @@ public class Program {
         pw.print("\n\n");
         pw.println("return 0;");
         pw.println("}");
-
 
     }
     private ArrayList<Stmt> listStmt;

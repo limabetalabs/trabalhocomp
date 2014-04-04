@@ -689,6 +689,7 @@ public class Compiler {
         String name2 = null;
         if (lexer.token == Symbol.LEFTCURBRACKET) {
             listmaker = list_maker();
+            lexer.nextToken();
         } else if (lexer.token == Symbol.ID) {
             name = lexer.getStringValue();
             lexer.nextToken();
@@ -701,7 +702,9 @@ public class Compiler {
                     error.show(") esperado!");
                 }
                 lexer.nextToken();
-
+                if (lexer.token == Symbol.DEDENT){
+                    lexer.nextToken();
+                }
             } else if (lexer.token == Symbol.DOT) {
                 lexer.nextToken();
                 if (lexer.token != Symbol.ID) {
@@ -712,6 +715,7 @@ public class Compiler {
                 if (lexer.token == Symbol.LEFTPAR) {
                     //função
                 } else {
+                    lexer.nextToken();
 //                    if (this.symbolTable.get(name) == null) {
 //                        error.show("objeto não encontrado");
 //                    }
@@ -724,8 +728,10 @@ public class Compiler {
             }
         } else if (lexer.token == Symbol.NUM) {
             numb = lexer.getNumberValue();
+            lexer.nextToken();
         } else if (lexer.token == Symbol.STRING) {
             str = lexer.getStringValue();
+            lexer.nextToken();
         }
         lexer.nextToken();
         Atom at = new Atom(listmaker, name, numb, str, name2);

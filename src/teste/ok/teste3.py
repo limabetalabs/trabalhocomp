@@ -11,4 +11,3 @@ class Teste:
 a = 1
 b = 2
 c = 3.0
-p = Ponto()
