@@ -334,7 +334,8 @@ public class Lexer {
                                     flagNEWLINE = true;
                                     break;
                                 case '.':
-                                    error.show("Invalid Character: '" + ch + "'", false);
+                                    token = Symbol.DOT;
+                                    break;
                                 default:
                                     error.show("Invalid Character: '" + ch + "'", false);
                             }

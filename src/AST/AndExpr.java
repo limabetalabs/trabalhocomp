@@ -33,4 +33,8 @@ public class AndExpr implements ClassGenC {
         }
 
     }
+
+    String getName() {
+        return arithExpr.get(0).getName();
+    }
 }

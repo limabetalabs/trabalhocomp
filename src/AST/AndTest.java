@@ -36,4 +36,8 @@ public class AndTest implements ClassGenC {
             }
         }
     }
+
+    String getName() {
+        return notTest.get(0).getName();
+    }
 }

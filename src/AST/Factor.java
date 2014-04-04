@@ -48,4 +48,12 @@ public class Factor implements ClassGenC{
            return this.atom.getType();
        }
    }
+
+    String getName() {
+        if (this.factor != null) {
+           return this.factor.getName();
+       } else {
+           return this.atom.getName();
+       }
+    }
 }

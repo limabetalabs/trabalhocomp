@@ -33,4 +33,8 @@ public class Expr implements ClassGenC {
             }
         }
     }
+
+    String getName() {
+        return xorExpr.get(0).getName();
+    }
 }

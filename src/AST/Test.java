@@ -38,4 +38,8 @@ public class Test implements ClassGenC {
             }
         }
     }
+
+    public String getName() {
+        return orTest.getName();
+    }
 }

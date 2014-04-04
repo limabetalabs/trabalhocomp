@@ -38,4 +38,8 @@ public class Comparison implements ClassGenC {
 
 
     }
+
+    String getName() {
+        return firstExpr.getName();
+    }
 }

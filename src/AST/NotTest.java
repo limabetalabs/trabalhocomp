@@ -35,4 +35,12 @@ public class NotTest implements ClassGenC {
             notTest.genC(pw);
         }
     }
+
+    String getName() {
+        if (notTest != null) {
+            return notTest.getName();
+        } else {
+            return comparison.getName();
+        }
+    }
 }

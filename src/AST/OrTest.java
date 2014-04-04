@@ -32,4 +32,8 @@ public class OrTest implements ClassGenC {
             }
         }
     }
+
+    String getName() {
+        return andTest.get(0).getName();
+    }
 }

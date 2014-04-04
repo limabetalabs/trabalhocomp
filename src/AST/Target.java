@@ -10,15 +10,25 @@ package AST;
  */
 public class Target implements ClassGenC {
 
-    private String name, tipo;
+    private String var1, var2, tipo;
 
-    public Target(String name, String tipo) {
-        this.name = name;
+    public Target(String var1, String var2, String tipo) {
+        this.var1 = var1;
+        this.var2 = var2;
+        this.tipo = tipo;
+    }
+
+    public Target(String var1, String tipo) {
+        this.var1 = var1;
         this.tipo = tipo;
     }
 
     public String getName() {
-        return name;
+        if (this.notEmpty(var2)) {
+            return var2;
+        }else{
+            return var1;
+        }
     }
 
     public String getType() {
@@ -31,6 +41,10 @@ public class Target implements ClassGenC {
 
     @Override
     public void genC(PW pw) {
-        pw.print("_" + this.name);
+        pw.print("_" + this.var1);
+    }
+
+    public static boolean notEmpty(String s) {
+        return (s != null && s.length() > 0);
     }
 }

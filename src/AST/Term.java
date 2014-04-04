@@ -50,4 +50,8 @@ public class Term implements ClassGenC {
             count++;
         }
     }
+
+    String getName() {
+         return firstFactor.getName();
+    }
 }

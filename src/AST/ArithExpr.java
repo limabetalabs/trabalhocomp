@@ -43,4 +43,8 @@ public class ArithExpr implements ClassGenC {
         }
 
     }
+
+    String getName() {
+        return firstTerm.getName();
+    }
 }

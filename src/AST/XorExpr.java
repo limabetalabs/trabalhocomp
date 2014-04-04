@@ -32,4 +32,8 @@ public class XorExpr implements ClassGenC {
             }
         }
     }
+
+    String getName() {
+        return andExpr.get(0).getName();
+    }
 }
