@@ -61,8 +61,8 @@ import java.io.*;
 public class Compiler {
 
     private SymbolTable symbolTable;
-    private SymbolTable symbolTableClasses;
-    private SymbolTable symbolTableFuncoes;
+//    private SymbolTable symbolTableClasses;
+//    private SymbolTable symbolTableFuncoes;
     private Lexer lexer;
     private CompilerError error;
 
@@ -71,8 +71,8 @@ public class Compiler {
     public Program compile(char[] input, PrintWriter outError) {
 
         symbolTable = new SymbolTable();
-        symbolTableClasses = new SymbolTable();
-        symbolTableFuncoes = new SymbolTable();
+//        symbolTableClasses = new SymbolTable();
+//        symbolTableFuncoes = new SymbolTable();
         error = new CompilerError(lexer, new PrintWriter(outError));
         lexer = new Lexer(input, error);
         error.setLexer(lexer);
@@ -194,11 +194,11 @@ public class Compiler {
                 typeTest = auxTest.getType();
 
                 if (typeTest != "int" && typeTest != "string") {
-                    typeTest = symbolTable.getInLocal(lexer.getStringValue()).toString();
+                    typeTest = symbolTable.getInGlobal(lexer.getStringValue()).toString();
                 }
-                typeTarget = symbolTable.getInLocal(auxTarget.getName()).toString();
+                typeTarget = symbolTable.getInGlobal(auxTarget.getName()).toString();
                 if (typeTarget == "undefined") {
-                    symbolTable.putInLocal(auxTarget.getName(), typeTest);
+                    symbolTable.putInGlobal(auxTarget.getName(), typeTest);
                 } else {
                     if (typeTarget != typeTest) {
                         error.show("tipos incompativeis");
@@ -398,10 +398,10 @@ public class Compiler {
         lexer.nextToken();
         Suite suite = suite();
         FuncDec fdec = new FuncDec(name, parameters, suite);
-        if (symbolTableFuncoes.getInGlobal(name) != null) {
+        if (symbolTable.getInGlobal(name) != null) {
             error.show("NAME já utilizado!", true);
         } else {
-            symbolTableFuncoes.putInGlobal(name, "void");
+            symbolTable.putInGlobal(name, "func");
         }
         return fdec;
     }
@@ -418,6 +418,7 @@ public class Compiler {
                     Stmt stmt = stmt();
                     stmtList.add(stmt);
                 }
+                lexer.nextToken();
             } else {
                 error.show("Esperado: INDENT");
             }
@@ -451,14 +452,15 @@ public class Compiler {
         //ClassDef aClassDef = new ClassDef();
         ArrayList<Atom> atomList = new ArrayList<Atom>();
         lexer.nextToken();
-        String name = null;
         if (lexer.token != Symbol.ID) {
             error.show("Nome da classe não declarado!");
             return null;
         }
-        name = lexer.getStringValue();
-        if (symbolTable.getInLocal(name) == null) {
-            error.show("undefined variable");
+        String name = lexer.getStringValue();
+        if (symbolTable.getInLocal(name) != null) {
+            error.show("Nome da classe já utilizado!");
+        } else {
+            symbolTable.putInGlobal(name, "class");
         }
         lexer.nextToken();
         if (lexer.token == Symbol.LEFTPAR) {
@@ -475,6 +477,10 @@ public class Compiler {
             }
             lexer.nextToken();
         }
+        if (lexer.token != Symbol.COLON) {
+            error.show("':' esperado!");
+        }
+        lexer.nextToken();
         return new ClassDef(name, atomList, suite());
     }
 
@@ -681,8 +687,15 @@ public class Compiler {
             listmaker = list_maker();
         } else if (lexer.token == Symbol.ID) {
             name = lexer.getStringValue();
-            if (symbolTable.getInLocal(name) == null) {
-                error.show("undefined variable");
+            lexer.nextToken();
+            if (lexer.token == Symbol.LEFTPAR) {
+                if (symbolTable.getInGlobal(name) == null) {
+                    error.show("undefined variable");
+                }
+                lexer.nextToken();
+                if (lexer.token != Symbol.RIGHTPAR) {
+                    error.show(") esperado");
+                }
             }
         } else if (lexer.token == Symbol.NUM) {
             numb = lexer.getNumberValue();
@@ -726,6 +739,8 @@ public class Compiler {
         return listmaker;
     }
 
+    //targetlist = target ("," target)* 
+    //target = NAME
     private Target target() {
         String tipo;
         if (lexer.token != Symbol.ID) {
@@ -734,12 +749,10 @@ public class Compiler {
             if (symbolTable.getInGlobal(lexer.getStringValue()) != null) {
                 error.show("NAME já utilizado!", true);
             } else {
-                if (symbolTable.getInLocal(lexer.getStringValue()) == null) {
-                    symbolTable.putInLocal(lexer.getStringValue(), "undefined");
-                }
+                symbolTable.putInGlobal(lexer.getStringValue(), "undefined");
             }
         }
-        tipo = symbolTable.getInLocal(lexer.getStringValue()).toString();
+        tipo = symbolTable.getInGlobal(lexer.getStringValue()).toString();
         Target id = new Target(lexer.getStringValue(), tipo);
         lexer.nextToken();
         return id;

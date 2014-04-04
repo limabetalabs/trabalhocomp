@@ -1,7 +1,7 @@
 class Ponto:
-	x = 0
-	y = 0
-	z = 0.0
+    x = 0
+    y = 0
+    z = 0.0
 
 a = 1
 b = 2
