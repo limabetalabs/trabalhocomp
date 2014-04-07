@@ -5,9 +5,10 @@ import java.util.*;
 
 public class Program {
 
-    public Program(ArrayList<Stmt> listStmt, SymbolTable variaveis) {
+    public Program(ArrayList<Stmt> listStmt, SymbolTable variaveis, ArrayList<ClassDef> classes) {
         this.listStmt = listStmt;
         this.variaveis = variaveis;
+        this.classes = classes;
     }
 
     public void genC(PW pw) {
@@ -19,38 +20,45 @@ public class Program {
 
         // Get a set of all the entries (key - value pairs) contained in the Hashtable
         Hashtable hs = (Hashtable) variaveis.getGlobal();
-//        Enumeration keys = hs.keys();
-//        while (keys.hasMoreElements()) {
-//            Object key = keys.nextElement();
-//            Object value = hs.get(key);
-//            System.out.println(value);
-//        }
-
         Set entrySet = hs.entrySet();
 
         // Obtain an Iterator for the entries Set
         Iterator it = entrySet.iterator();
+        if (classes != null) {
+            pw.println("");
+            for (ClassDef cd : classes) {
+                cd.genC(pw);
+            }
+            pw.println("");
+        }
 
         // Iterate through Hashtable entries
         while (it.hasNext()) {
-            pw.println("int _" + it.toString() + ";");
+            Map.Entry entry = (Map.Entry) it.next();
+            if (entry.getValue() != "class" && !entry.getKey().toString().toLowerCase().contains("->")) {
+                if (entry.getValue() != "int" || entry.getValue() != "String" || entry.getValue() != "float") {
+                    pw.println("_" + entry.getValue() + " *_" + entry.getKey() + ";");
+                } else {
+                    pw.println(entry.getValue() + " _" + entry.getKey() + ";");
+                }
+            }
         }
+        pw.println("");
 
-//       for (String s : variaveis2){
-//           pw.println("int _" + s + ";");
-//       }
-        pw.print("\n\n");
         pw.println("int main(){");
 
+        pw.add();
         for (Stmt s : listStmt) {
             s.genC(pw);
         }
 
-        pw.print("\n\n");
+        pw.println("\n\n");
         pw.println("return 0;");
+        pw.sub();
         pw.println("}");
 
     }
     private ArrayList<Stmt> listStmt;
     private SymbolTable variaveis;
+    private ArrayList<ClassDef> classes;
 }

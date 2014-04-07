@@ -61,8 +61,7 @@ import java.io.*;
 public class Compiler {
 
     private SymbolTable symbolTable;
-//    private SymbolTable symbolTableClasses;
-//    private SymbolTable symbolTableFuncoes;
+    private ArrayList<ClassDef> classes;
     private Lexer lexer;
     private CompilerError error;
 
@@ -71,8 +70,7 @@ public class Compiler {
     public Program compile(char[] input, PrintWriter outError) {
 
         symbolTable = new SymbolTable();
-//        symbolTableClasses = new SymbolTable();
-//        symbolTableFuncoes = new SymbolTable();
+        classes = new ArrayList<>();
         error = new CompilerError(lexer, new PrintWriter(outError));
         lexer = new Lexer(input, error);
         error.setLexer(lexer);
@@ -102,7 +100,7 @@ public class Compiler {
 //            e.printStackTrace();
         }
 
-        p = new Program(listStmt, symbolTable);
+        p = new Program(listStmt, symbolTable, classes);
 
         return p;
     }
@@ -137,8 +135,6 @@ public class Compiler {
         }
         if (lexer.token == Symbol.NEWLINE) {
             lexer.nextToken();
-        } else {
-            error.show("Nova linha esperada!(obs ultima linha do arquivo deve ser em branco).", true);
         }
         SimpleStmt smallstmt = new SimpleStmt(small_stmt_list);
         return smallstmt;
@@ -191,16 +187,22 @@ public class Compiler {
             while (i < target_list.getSize()) {
                 auxTarget = target_list.getElement(i);
                 auxTest = list_maker.getElement(i);
-                typeTest = auxTest.getName();
+                typeTest = auxTest.getType();
 
                 if (typeTest != "int" && typeTest != "string") {
                     typeTest = symbolTable.getInGlobal(lexer.getStringValue()).toString();
                 }
-                typeTarget = symbolTable.getInGlobal(auxTarget.getName()).toString();
+                typeTarget = auxTarget.getType();
                 if (typeTarget == "undefined") {
-                    symbolTable.putInGlobal(auxTarget.getName(), typeTest);
+                    if (typeTest == "class") {
+                        symbolTable.putInGlobal(auxTarget.getName(), lexer.getStringValue());
+                        symbolTable.putInLocal(auxTarget.getName(), lexer.getStringValue());
+                    } else {
+                        symbolTable.putInGlobal(auxTarget.getName(), typeTest);
+                        symbolTable.putInLocal(auxTarget.getName(), typeTest);
+                    }
                 } else {
-                    if (typeTarget != typeTest && (typeTarget != "ClassDef")) {
+                    if (typeTarget != typeTest) {
                         error.show("tipos incompativeis");
                     }
                 }
@@ -402,6 +404,7 @@ public class Compiler {
             error.show("NAME já utilizado!", true);
         } else {
             symbolTable.putInGlobal(name, "func");
+            symbolTable.putInLocal(name, "func");
         }
         return fdec;
     }
@@ -450,6 +453,7 @@ public class Compiler {
     //classdef: 'class' NAME ['(' [atom [',' atom]* ] ')'] ':' suite
     private ClassDef classdef() {
         //ClassDef aClassDef = new ClassDef();
+        this.symbolTable.cleanLocal();
         ArrayList<Atom> atomList = new ArrayList<Atom>();
         lexer.nextToken();
         if (lexer.token != Symbol.ID) {
@@ -477,13 +481,33 @@ public class Compiler {
         }
 
         lexer.nextToken();
-        ClassDef classd = new ClassDef(name, atomList, suite());
+        Suite s = suite();
+
+        ClassDef classd = new ClassDef(name, atomList, s);
+        classes.add(classd);
+        Hashtable glob = (Hashtable) symbolTable.getLocal();
+        Set entrySet = glob.entrySet();
+        // Obtain an Iterator for the entries Set
+        Iterator iterate = entrySet.iterator();
+        // Iterate through Hashtable entries
+        while (iterate.hasNext()) {
+            Map.Entry entry = (Map.Entry) iterate.next();
+            String type = symbolTable.getInGlobal(entry.getKey().toString()).toString();
+            if (type != null) {
+                symbolTable.removeInGlobal(entry.getKey().toString());
+            }
+        }
+        this.symbolTable.cleanLocal();
+
         if (symbolTable.getInGlobal(name) != null) {
             error.show("Nome da classe já utilizado!");
         } else {
-            symbolTable.putInGlobal(name, classd);
+            symbolTable.putInGlobal(name, "class");
+//            symbolTable.putInGlobal(name, classd);
         }
-        return classd;
+        //Gambi para não imprimir o classdef dentro do main.
+        //Talvez a linguagem devia ser reescrita na forma Program : funcdef (';' funcdef)* NEWLINE classdef (';' classdef)* NEWLINE [stmt]
+        return new ClassDef();
     }
 
     //print_stmt: 'print' ( test (',' test)* )
@@ -702,9 +726,6 @@ public class Compiler {
                     error.show(") esperado!");
                 }
                 lexer.nextToken();
-                if (lexer.token == Symbol.DEDENT){
-                    lexer.nextToken();
-                }
             } else if (lexer.token == Symbol.DOT) {
                 lexer.nextToken();
                 if (lexer.token != Symbol.ID) {
@@ -733,8 +754,7 @@ public class Compiler {
             str = lexer.getStringValue();
             lexer.nextToken();
         }
-        lexer.nextToken();
-        Atom at = new Atom(listmaker, name, numb, str, name2);
+        Atom at = new Atom(listmaker, name, numb, str, name2, symbolTable);
         return at;
     }
 
@@ -788,7 +808,7 @@ public class Compiler {
                 error.show("identificador esperado!");
             }
             nome = lexer.getStringValue();
-            id = new Target("self", nome, "self");
+            id = new Target("self", nome, symbolTable.getInGlobal(nome).toString(), symbolTable);
             lexer.nextToken();
 
         } else if (lexer.token == Symbol.ID) {
@@ -814,16 +834,17 @@ public class Compiler {
 //                    if (this.symbolTable.getInGlobal(cd + "." + nome2) == null) {
 //                        error.show("Atributo não foi encontrado");
 //                    }
-                    id = new Target(nome, nome2, "undefined");
+                    id = new Target(nome, nome2, "undefined", symbolTable);
                 }
             } else {
                 if (symbolTable.getInGlobal(nome) != null) {
-                    error.show("NAME já utilizado!", true);
+//                    error.show("NAME já utilizado!", true);
                 } else {
                     symbolTable.putInGlobal(nome, "undefined");
+                    symbolTable.putInLocal(nome, "undefined");
                 }
                 tipo = symbolTable.getInGlobal(nome).toString();
-                id = new Target(nome, tipo);
+                id = new Target(nome, tipo, symbolTable);
 //                lexer.nextToken();
             }
         } else {

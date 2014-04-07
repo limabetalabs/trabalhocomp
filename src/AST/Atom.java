@@ -4,6 +4,8 @@
  */
 package AST;
 
+import CompilerSPy.SymbolTable;
+
 /**
  *
  * @author bruno
@@ -15,13 +17,15 @@ public class Atom implements ClassGenC {
     private String name2;
     private Integer number;
     private String str;
+    private SymbolTable globais;
 
-    public Atom(ListMaker listMaker, String name, Integer number, String str, String name2) {
+    public Atom(ListMaker listMaker, String name, Integer number, String str, String name2, SymbolTable globais) {
         this.listMaker = listMaker;
         this.name = name;
         this.name2 = name2;
         this.number = number;
         this.str = str;
+        this.globais = globais;
     }
 
     public String getType() {
@@ -38,7 +42,11 @@ public class Atom implements ClassGenC {
 
     public void genC(PW pw) {
         if (this.name != null) {
-            pw.print("_" + this.name);
+            if (globais.getInGlobal(this.name) == "class") {
+                pw.print("new _" + this.name + "()");
+            } else {
+                pw.print("_" + this.name);
+            }
         } else if (this.number != null) {
             pw.print(String.valueOf(this.number));
         } else if (this.str != null) {

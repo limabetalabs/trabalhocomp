@@ -21,7 +21,9 @@ public class SimpleStmt implements ClassGenC {
     @Override
     public void genC(PW pw) {
         smallstmt.get(0).genC(pw);
+        pw.sub();
         pw.print(";");
+        pw.add();
         for (SmallStmt s : smallstmt) {
             if (s != smallstmt.get(0)) {
                 s.genC(pw);

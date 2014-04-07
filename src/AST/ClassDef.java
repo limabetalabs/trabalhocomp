@@ -23,18 +23,24 @@ public class ClassDef extends CompoundStmt {
         this.suite = suite;
     }
 
+    public ClassDef() {
+        this.name = null;
+        this.atom = null;
+        this.suite = null;
+    }
+
     public void genC(PW pw) {
-        pw.println("typedef struct " + this.name + "{");
-        if (this.atom != null) {
-            Iterator<Atom> it = this.atom.iterator();
-            while (it.hasNext()) {
-                Atom s = it.next();
-                s.genC(pw);
+        if (this.name != null && this.atom != null && this.suite != null) {
+            pw.println("typedef struct _" + this.name);
+            if (this.atom != null) {
+                Iterator<Atom> it = this.atom.iterator();
+                while (it.hasNext()) {
+                    Atom s = it.next();
+                    s.genC(pw);
+                }
             }
+            this.suite.genC(pw);
+            pw.println("_"+this.name + ";");
         }
-        pw.add();
-        this.suite.genC(pw);
-        pw.sub();
-        pw.println("} " + this.name + ";");
     }
 }

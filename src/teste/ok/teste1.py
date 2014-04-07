@@ -1,14 +1,7 @@
-class Ponto:
-	x = 0
-	y = 0
-	z = 0.0
-
 a = 1
-b = 2
-c = 3.0
-p = Ponto()
-p.x = a
-p.y = 3
-p.z = c * 1.5
+b = 50
 
-d = p.z * p.x
+while ( a < 50 and b > 10 ) :
+    print a + b
+    a = a + 1
+    b = b - 1

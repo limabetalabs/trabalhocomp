@@ -19,21 +19,20 @@ public class Suite implements ClassGenC{
         this.simpleStmt = simpleStmt;
         this.stmt = stmt;
     }
-
+    
     @Override
     public void genC(PW pw) {
         if (simpleStmt != null) {
             simpleStmt.genC(pw);
         } else {
             pw.print("{");
-            pw.print("\n");
+            pw.println("");
             pw.add();
             for (Stmt s : stmt) {
                 s.genC(pw);
             }
             pw.sub();
             pw.print("}");
-            pw.print("\n");
         }
 
     }
