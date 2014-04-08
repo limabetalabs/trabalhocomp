@@ -23,17 +23,17 @@ public class WhileStmt extends CompoundStmt {
     @Override
     public void genC(PW pw) {
         if (elsePart == null) {
-            pw.print("while( ");
+            pw.print("while(");
             test.genC(pw);
-            pw.print(" )\n");
+            pw.print(")\n");
             doPart.genC(pw);
         } else {
-            pw.print("if ( ");
+            pw.print("if (");
             test.genC(pw);
             pw.print(") {\n");
-            pw.print("\twhile( ");
+            pw.print("\twhile(");
             test.genC(pw);
-            pw.print(" )");
+            pw.print(")");
             doPart.genC(pw);
             pw.print("} else {\n");
             elsePart.genC(pw);

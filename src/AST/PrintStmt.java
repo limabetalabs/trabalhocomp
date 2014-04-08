@@ -21,10 +21,13 @@ public class PrintStmt extends SmallStmt {
     @Override
     public void genC(PW pw) {
         pw.print("printf(");//precisa verificar os tipos
+        test.get(0).genC(pw);
         for (Test t : test) {
-            pw.print(" , ");
+            if (t != test.get(0)) {
+            pw.print(", ");
             t.genC(pw);
+            }
         }
-        pw.print(");");
+        pw.print(")");
     }
 }
