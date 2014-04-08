@@ -49,7 +49,7 @@ public class PW {
      */
     static public final int green = 0, java = 1;
     int mode = green;
-    public int step = 2;
+    public int step = 1;
     public PrintWriter out;
 
     static final private String space = "                                                                                                        ";

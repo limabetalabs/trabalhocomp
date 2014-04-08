@@ -20,10 +20,10 @@ public class Parameters implements ClassGenC{
 
     @Override
     public void genC(PW pw) {
-        pw.print("( ");
+        pw.print("(");
         if (varArgsList != null) {
             varArgsList.genC(pw);
         }
-        pw.print(" )");
+        pw.print(")");
     }
 }

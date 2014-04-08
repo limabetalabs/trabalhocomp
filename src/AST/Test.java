@@ -29,9 +29,9 @@ public class Test implements ClassGenC {
     public void genC(PW pw) {
         orTest.genC(pw);
         if (ifOrTest != null) {
-            pw.print("if ( ");
+            pw.print("if (");
             ifOrTest.genC(pw);
-            pw.print(" )");
+            pw.print(")");
             if (elseTest != null) {
                 pw.print("else");
                 elseTest.genC(pw);
