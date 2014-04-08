@@ -50,7 +50,7 @@ public class Atom implements ClassGenC {
         } else if (this.number != null) {
             pw.print(String.valueOf(this.number));
         } else if (this.str != null) {
-            pw.print(this.str);
+            pw.print('"'+this.str+'"');
         } else if (this.listMaker != null) {
             pw.print("(");
             this.listMaker.genC(pw);

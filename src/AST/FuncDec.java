@@ -20,16 +20,30 @@ public class FuncDec extends CompoundStmt {
         this.suite = suite;
     }
 
+    public FuncDec(String name, Parameters parameters) {
+        this.name = name;
+        this.parameters = parameters;
+        this.suite = null;
+    }
+
     @Override
     public void genC(PW pw) {
-        pw.print("void * " + this.name + "(");
-
-        this.parameters.genC(pw);
-        pw.sub();
-        pw.print(")");
-        pw.add();
-        this.suite.genC(pw);
-        pw.sub();
-        pw.println("");
+        if (suite != null) {
+            pw.print("void * " + this.name + "(");
+            this.parameters.genC(pw);
+            pw.sub();
+            pw.print(")");
+            pw.add();
+            this.suite.genC(pw);
+            pw.sub();
+            pw.println("");
+        } else {
+            pw.print("void * " + this.name + "(");
+            this.parameters.genC(pw);
+            pw.sub();
+            pw.print(");");
+            pw.add();
+            pw.println("");
+        }
     }
 }

@@ -6,18 +6,14 @@
 
 
 
-_int *_b;
-_int *_a;
+
 
 int main(){
- _a = 1; 
- _b = 50; 
- while( _a < 50  &&  _b > 10 )
- { 
-  printf(  _a  +  _b  ) ;  
-  _a  =  _a  +  1 ;  
-  _b  =  _b  -  1 ;  
- } 
+ printf( "" ); 
+ printf( "ok-Ger02" ); 
+ printf( "The output should be : " ); 
+ printf( "6 1 2 3 4 5 6 5.00 5.50" ); 
+ 
 
 
  return 0;

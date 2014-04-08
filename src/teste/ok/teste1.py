@@ -1,7 +1,26 @@
-a = 1
-b = 50
+class A: 
+    
+	def m(self):
+		print ' 6 '
+		print ' %d ' % 1
+		print ' %d ' % int (1 + 1)
+		d = 4 - 1
+		print ' %d ' % d
+		d = (6-3) + 1
+		print ' %d ' % d
+		d = 10 / 2
+		print ' %d ' % d
+		d = 2 * 3
+		print ' %d ' % d
+		e = 11 / 2
+		print ' %.2f ' % e
+		e = 11 / 2.
+		print ' %.2f ' % e
 
-while ( a < 50 and b > 10 ) :
-    print a + b
-    a = a + 1
-    b = b - 1
+
+print '';
+print 'ok-Ger02'
+print 'The output should be : '
+print '6 1 2 3 4 5 6 5.00 5.50'
+a = A()
+a.m()

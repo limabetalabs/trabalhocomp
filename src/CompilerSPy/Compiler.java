@@ -72,6 +72,7 @@ public class Compiler {
 
         symbolTable = new SymbolTable();
         classes = new ArrayList<>();
+        funcoes = new ArrayList<>();
         error = new CompilerError(lexer, new PrintWriter(outError));
         lexer = new Lexer(input, error);
         error.setLexer(lexer);
@@ -388,6 +389,8 @@ public class Compiler {
     }
 
     private FuncDec funcdef() {
+        Object aux_local = symbolTable.getLocal();
+        this.symbolTable.cleanLocal();
         lexer.nextToken();
         if (lexer.token != Symbol.ID) {
             error.show("Esperado: Identificador", true);
@@ -401,13 +404,28 @@ public class Compiler {
         lexer.nextToken();
         Suite suite = suite();
         FuncDec fdec = new FuncDec(name, parameters, suite);
+        funcoes.add(fdec);
+        Hashtable glob = (Hashtable) symbolTable.getLocal();
+        Set entrySet = glob.entrySet();
+        // Obtain an Iterator for the entries Set
+        Iterator iterate = entrySet.iterator();
+        // Iterate through Hashtable entries
+        while (iterate.hasNext()) {
+            Map.Entry entry = (Map.Entry) iterate.next();
+            String type = symbolTable.getInGlobal(entry.getKey().toString()).toString();
+            if (type != null) {
+                symbolTable.removeInGlobal(entry.getKey().toString());
+            }
+        }
+        this.symbolTable.cleanLocal();
+        symbolTable.setLocalObject(aux_local);
         if (symbolTable.getInGlobal(name) != null) {
             error.show("NAME já utilizado!", true);
         } else {
             symbolTable.putInGlobal(name, "func");
             symbolTable.putInLocal(name, "func");
         }
-        return fdec;
+        return new FuncDec(name, parameters);
     }
     // suite: simple_stmt | NEWLINE INDENT stmt+ DEDENT
 
@@ -522,6 +540,7 @@ public class Compiler {
     //classdef: 'class' NAME ['(' [atom [',' atom]* ] ')'] ':' suite
     private ClassDef classdef() {
         //ClassDef aClassDef = new ClassDef();
+        Object aux_local = symbolTable.getLocal();
         this.symbolTable.cleanLocal();
         ArrayList<Atom> atomList = new ArrayList<Atom>();
         lexer.nextToken();
@@ -567,6 +586,7 @@ public class Compiler {
             }
         }
         this.symbolTable.cleanLocal();
+        symbolTable.setLocalObject(aux_local);
 
         if (symbolTable.getInGlobal(name) != null) {
             error.show("Nome da classe já utilizado!");

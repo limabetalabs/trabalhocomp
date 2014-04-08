@@ -28,10 +28,9 @@ public class Program {
 
         if (funcoes != null) {
             pw.println("");
-            for (FuncDec cd : funcoes) {
-                cd.genC(pw);
+            for (FuncDec fc : funcoes) {
+                fc.genC(pw);
             }
-            pw.println("");
         }
 
         if (classes != null) {
@@ -46,7 +45,9 @@ public class Program {
         while (it.hasNext()) {
             Map.Entry entry = (Map.Entry) it.next();
             if (entry.getValue() != "class" && !entry.getKey().toString().toLowerCase().contains("->")) {
-                if (entry.getValue() != "int" && entry.getValue() != "String" && entry.getValue() != "string" && entry.getValue() != "float") {
+                if (entry.getValue() == "func") {
+                    pw.println("typedef void (* " + entry.getKey() + ")();");
+                } else if (entry.getValue() != "int" && entry.getValue() != "String" && entry.getValue() != "string" && entry.getValue() != "float") {
                     pw.println("_" + entry.getValue() + " *_" + entry.getKey() + ";");
                 } else {
                     pw.println(entry.getValue() + " _" + entry.getKey() + ";");

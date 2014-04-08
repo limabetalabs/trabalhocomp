@@ -66,4 +66,8 @@ public class SymbolTable {
     }
 
     private Hashtable globalTable, localTable;
+
+    void setLocalObject(Object aux_local) {
+        localTable = (Hashtable) aux_local;
+    }
 }
