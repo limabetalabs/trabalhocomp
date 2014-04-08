@@ -25,10 +25,11 @@ public class FuncDec extends CompoundStmt {
         pw.print("void * " + this.name + "(");
 
         this.parameters.genC(pw);
-        pw.print("){");
+        pw.sub();
+        pw.print(")");
         pw.add();
         this.suite.genC(pw);
         pw.sub();
-        pw.println("}");
+        pw.println("");
     }
 }
