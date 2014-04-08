@@ -13,10 +13,10 @@ typedef struct _Ponto
 }_Ponto;
 
 _Ponto *_p;
-_Ponto *_d;
-_int *_c;
-_int *_b;
-_int *_a;
+_p *_d;
+_c *_c;
+_b *_b;
+_a *_a;
 
 int main(){
   _a  =  1;  

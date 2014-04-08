@@ -5,10 +5,11 @@ import java.util.*;
 
 public class Program {
 
-    public Program(ArrayList<Stmt> listStmt, SymbolTable variaveis, ArrayList<ClassDef> classes) {
+    public Program(ArrayList<Stmt> listStmt, SymbolTable variaveis, ArrayList<ClassDef> classes, ArrayList<FuncDec> funcoes) {
         this.listStmt = listStmt;
         this.variaveis = variaveis;
         this.classes = classes;
+        this.funcoes = funcoes;
     }
 
     public void genC(PW pw) {
@@ -24,6 +25,15 @@ public class Program {
 
         // Obtain an Iterator for the entries Set
         Iterator it = entrySet.iterator();
+
+        if (funcoes != null) {
+            pw.println("");
+            for (FuncDec cd : funcoes) {
+                cd.genC(pw);
+            }
+            pw.println("");
+        }
+
         if (classes != null) {
             pw.println("");
             for (ClassDef cd : classes) {
@@ -36,7 +46,7 @@ public class Program {
         while (it.hasNext()) {
             Map.Entry entry = (Map.Entry) it.next();
             if (entry.getValue() != "class" && !entry.getKey().toString().toLowerCase().contains("->")) {
-                if (entry.getValue() != "int" || entry.getValue() != "String" || entry.getValue() != "float") {
+                if (entry.getValue() != "int" && entry.getValue() != "String" && entry.getValue() != "string" && entry.getValue() != "float") {
                     pw.println("_" + entry.getValue() + " *_" + entry.getKey() + ";");
                 } else {
                     pw.println(entry.getValue() + " _" + entry.getKey() + ";");
@@ -61,4 +71,6 @@ public class Program {
     private ArrayList<Stmt> listStmt;
     private SymbolTable variaveis;
     private ArrayList<ClassDef> classes;
+    private final ArrayList<FuncDec> funcoes;
+
 }

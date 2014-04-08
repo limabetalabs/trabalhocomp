@@ -62,6 +62,7 @@ public class Compiler {
 
     private SymbolTable symbolTable;
     private ArrayList<ClassDef> classes;
+    private ArrayList<FuncDec> funcoes;
     private Lexer lexer;
     private CompilerError error;
 
@@ -100,7 +101,7 @@ public class Compiler {
 //            e.printStackTrace();
         }
 
-        p = new Program(listStmt, symbolTable, classes);
+        p = new Program(listStmt, symbolTable, classes, funcoes);
 
         return p;
     }
@@ -194,7 +195,7 @@ public class Compiler {
                 }
                 typeTarget = auxTarget.getType();
                 if (typeTarget == "undefined") {
-                    if (typeTest == "class") {
+                    if (typeTest == "class" || (typeTest != "int" && typeTest != "string" && typeTest != "float")) {
                         symbolTable.putInGlobal(auxTarget.getName(), lexer.getStringValue());
                         symbolTable.putInLocal(auxTarget.getName(), lexer.getStringValue());
                     } else {
@@ -441,15 +442,83 @@ public class Compiler {
         if (lexer.token != Symbol.RIGHTPAR) {
             error.show("Esperado: ')'");
         }
+        lexer.nextToken();
         return new Parameters(varArgsList);
     }
+    
 //varargslist: ([fpdef ['=' test] (',' fpdef ['=' test])* ] )
-
     private VarArgsList var_args_list() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        ArrayList<Fpdef> parameters1 = new ArrayList<Fpdef>();
+        ArrayList<Test> parameters2 = new ArrayList<Test>();
+        VarArgsList ret;
 
+        if (lexer.token == Symbol.ID || lexer.token == Symbol.LEFTPAR) {
+            parameters1.add(fpdef());
+            if (lexer.token == Symbol.ASSIGN) {
+                lexer.nextToken();
+                parameters2.add(test());
+            } else {
+                parameters2.add(null);
+            }
+        }
+
+        while (lexer.token == Symbol.COMMA) {
+            lexer.nextToken();
+
+            parameters1.add(fpdef());
+
+            if (lexer.token == Symbol.ASSIGN) {
+                lexer.nextToken();
+
+                parameters2.add(test());
+            } else {
+                parameters2.add(null);
+            }
+        }
+
+        ret = new VarArgsList(parameters1, parameters2);
+        return ret;
     }
 
+    //fpdef: NAME | '(' fplist ')'
+    private Fpdef fpdef() {
+        Fpdef ret = null;
+        String id;
+        if (lexer.token == Symbol.ID || lexer.token == Symbol.SELF) {
+            id = lexer.getStringValue();
+            ret = new Fpdef(id);
+
+            lexer.nextToken();
+        } else if (lexer.token == Symbol.LEFTPAR) {
+            lexer.nextToken();
+
+            ret = new Fpdef(fplist());
+
+            if (lexer.token != Symbol.RIGHTPAR) {
+                error.show(") esperado!");
+            }
+        } else {
+            error.show("( ou id esperado!");
+        }
+
+        return ret;
+    }
+
+    //fplist: fpdef (',' fpdef)* 
+    private List<Fpdef> fplist() {
+        List<Fpdef> ret = new ArrayList<Fpdef>();
+
+        ret.add(fpdef());
+
+        while (lexer.token == Symbol.COMMA) {
+            lexer.nextToken();
+
+            ret.add(fpdef());
+        }
+
+        return ret;
+    }
+    
     //classdef: 'class' NAME ['(' [atom [',' atom]* ] ')'] ':' suite
     private ClassDef classdef() {
         //ClassDef aClassDef = new ClassDef();
@@ -828,11 +897,9 @@ public class Compiler {
 //                    if (this.symbolTable.getInGlobal(nome) == null) {
 //                        error.show("Atributo não foi encontrado");
 //                    }
-
-//                    Object cd = symbolTable.getInGlobal(nome);
-//
-//                    if (this.symbolTable.getInGlobal(cd + "." + nome2) == null) {
-//                        error.show("Atributo não foi encontrado");
+//                    System.out.println(nome + "->" + nome2);
+//                    if (symbolTable.getInGlobal(nome + "->" + nome2) == null) {
+//                        error.show("Atributo da classe não encontrado!");
 //                    }
                     id = new Target(nome, nome2, "undefined", symbolTable);
                 }
